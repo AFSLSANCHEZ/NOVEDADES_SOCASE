@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Portal de Novedades</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #ffffff;
+    --surface: #f8f9fb;
+    --surface2: #f0f2f7;
+    --border: #e2e8f0;
+    --accent: #175fca;
+    --accent-light: #317cee;
+    --accent2: #6b7280;
+    --accent3: #d1d5db;
+    --text: #111827;
+    --text-muted: #4b5563;
+    --text-dim: #9ca3af;
+    --card-radius: 16px;
+    --font-display: 'DM Serif Display', serif;
+    --font-body: 'Outfit', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-weight: 400;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── BACKGROUND TEXTURE ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 20% 10%, rgba(0,61,153,0.05) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(0,82,204,0.04) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: linear-gradient(135deg, #1a439c 0%, #1a2940 100%);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(0,82,204,0.15);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    height: 64px;
+  }
+
+  .header-logo {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    color: #ffffff;
+  }
+
+  .header-logo span { color: var(--accent-light); }
+
+  .header-period {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    background: rgba(0,82,204,0.15);
+    border: 1px solid rgba(0,82,204,0.3);
+    padding: 4px 12px;
+    border-radius: 100px;
+    transition: all 0.3s;
+  }
+
+  /* ─── SEARCH ─── */
+  .search-wrap {
+    margin-left: auto;
+    position: relative;
+  }
+
+  .search-wrap svg {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255,255,255,0.5);
+    pointer-events: none;
+  }
+
+  #search-input {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 100px;
+    padding: 8px 16px 8px 38px;
+    color: #ffffff;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    width: 220px;
+    outline: none;
+    transition: border-color 0.2s, width 0.3s, background 0.2s;
+  }
+
+  #search-input:focus {
+    border-color: var(--accent-light);
+    background: rgba(0,82,204,0.15);
+    width: 280px;
+  }
+
+  #search-input::placeholder { color: rgba(255,255,255,0.4); }
+
+  /* ─── LAYOUT ─── */
+  .layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: calc(100vh - 64px);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ─── SIDEBAR ─── */
+  aside {
+    border-right: 1px solid var(--border);
+    padding: 2rem 1.25rem;
+    position: sticky;
+    top: 64px;
+    height: calc(100vh - 64px);
+    overflow-y: auto;
+  }
+
+  aside::-webkit-scrollbar { width: 4px; }
+  aside::-webkit-scrollbar-track { background: transparent; }
+  aside::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .sidebar-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 1rem;
+    padding-left: 0.5rem;
+  }
+
+  .period-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    margin-bottom: 4px;
+  }
+
+  .period-btn .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+
+  .period-btn:hover {
+    background: var(--surface2);
+    color: var(--text);
+    border-color: var(--border);
+  }
+
+  .period-btn.active {
+    background: rgba(0,82,204,0.12);
+    color: var(--accent-light);
+    border-color: rgba(0,82,204,0.3);
+  }
+
+  .period-btn.active .dot { background: var(--accent-light); }
+
+  .period-btn .count {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-dim);
+  }
+
+  .period-btn.active .count { color: var(--accent-light); opacity: 0.7; }
+
+  /* ─── MAIN CONTENT ─── */
+  main {
+    padding: 2.5rem 3rem;
+    max-width: 960px;
+  }
+
+  .section-header {
+    margin-bottom: 2.5rem;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .section-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent-light);
+    margin-bottom: 0.5rem;
+  }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    line-height: 1.1;
+    color: var(--text);
+  }
+
+  .section-title em {
+    font-style: italic;
+    color: var(--accent-light);
+  }
+
+  .section-meta {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  /* ─── SEARCH BANNER ─── */
+  #search-banner {
+    display: none;
+    background: rgba(0,82,204,0.08);
+    border: 1px solid rgba(0,82,204,0.25);
+    border-radius: 10px;
+    padding: 10px 16px;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--accent);
+    font-family: var(--font-mono);
+  }
+
+  /* ─── CARDS ─── */
+  .cards-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--card-radius);
+    overflow: hidden;
+    animation: fadeUp 0.4s ease both;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .card:hover {
+    border-color: var(--accent-light);
+    transform: translateY(-2px);
+  }
+
+  .card-header {
+    padding: 1.4rem 1.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .card-id {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 3px 10px;
+    border-radius: 100px;
+    white-space: nowrap;
+    margin-top: 3px;
+  }
+
+  .card-titles { flex: 1; }
+
+  .card-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    color: var(--text);
+    line-height: 1.2;
+    margin-bottom: 0.3rem;
+  }
+
+  .card-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .card-body {
+    padding: 1.5rem 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  /* ─── BLOCKS ─── */
+  .block-text {
+    font-size: 0.9rem;
+    line-height: 1.75;
+    color: #374151;
+  }
+
+  .block-text p + p { margin-top: 0.75em; }
+
+  .block-image {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    cursor: zoom-in;
+    transition: border-color 0.2s;
+  }
+
+  .block-image:hover { border-color: var(--accent-light); }
+
+  .block-image img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 500px;
+    object-fit: contain;
+    transition: opacity 0.3s;
+  }
+
+  .block-image img.loading { opacity: 0.3; }
+
+  /* ─── EMPTY STATE ─── */
+  .empty-state {
+    text-align: center;
+    padding: 5rem 2rem;
+    color: var(--text-dim);
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .empty-state .icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.4;
+  }
+
+  .empty-state h3 {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
+
+  /* ─── MODAL ─── */
+  #modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0,0,0,0.92);
+    backdrop-filter: blur(12px);
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+  }
+
+  #modal.open { display: flex; animation: fadeIn 0.25s ease; }
+
+  #modal img {
+    max-width: 92vw;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 0 80px rgba(0,0,0,0.6);
+    animation: scaleIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  #modal-close {
+    position: fixed;
+    top: 1.5rem; right: 1.5rem;
+    background: rgba(0,0,0,0.6);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #ffffff;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+
+  #modal-close:hover { background: rgba(0,0,0,0.8); }
+
+  /* ─── NO-DATA SCREEN ─── */
+  #no-data-screen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: var(--bg);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+  }
+
+  #no-data-screen.show { display: flex; }
+
+  .no-data-icon { font-size: 4rem; margin-bottom: 1.5rem; opacity: 0.5; }
+
+  .no-data-title {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: var(--text-muted);
+  }
+
+  .no-data-text {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    max-width: 480px;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+  }
+
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--accent-light);
+    text-align: left;
+    line-height: 1.8;
+    max-width: 500px;
+    width: 100%;
+  }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.85); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.1s; }
+  .card:nth-child(3) { animation-delay: 0.15s; }
+  .card:nth-child(4) { animation-delay: 0.2s; }
+  .card:nth-child(5) { animation-delay: 0.25s; }
+
+  /* ─── SCROLLBAR ─── */
+  main::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 768px) {
+    .layout { grid-template-columns: 1fr; }
+    aside {
+      position: static;
+      height: auto;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      padding: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      overflow-x: auto;
+    }
+    .sidebar-label { display: none; }
+    .period-btn { width: auto; margin-bottom: 0; }
+    .period-btn .count { display: none; }
+    main { padding: 1.5rem 1rem; }
+    .section-title { font-size: 1.8rem; }
+    header { padding: 0 1rem; gap: 1rem; }
+    #search-input { width: 160px; }
+    #search-input:focus { width: 200px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-logo">PORTAL<span>:</span>DE<span>:</span>NOVEDADES<span>:</span>SOCASE</div>
+  <div class="header-period" id="header-period">—</div>
+  <div class="search-wrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+    </svg>
+    <input type="text" id="search-input" placeholder="Buscar novedades..." autocomplete="off" />
+  </div>
+</header>
+
+<!-- LAYOUT -->
+<div class="layout">
+  <aside id="sidebar">
+    <div class="sidebar-label">Periodos</div>
+    <!-- period buttons injected here -->
+  </aside>
+
+  <main id="main-content">
+    <!-- content injected here -->
+  </main>
+</div>
+
+<!-- IMAGE MODAL -->
+<div id="modal">
+  <button id="modal-close" title="Cerrar">✕</button>
+  <img id="modal-img" src="" alt="Imagen ampliada" />
+</div>
+
+<!-- NO DATA SCREEN -->
+<div id="no-data-screen">
+  <div class="no-data-icon">📂</div>
+  <h2 class="no-data-title">Sin datos aún</h2>
+  <p class="no-data-text">
+    No se encontró el archivo <strong>data/data.json</strong>.<br/>
+    Sigue estos pasos para generar el contenido:
+  </p>
+  <div class="code-block">
+    1. Abre <strong>data/cambios.xlsx</strong><br/>
+    2. Agrega hojas por periodo (2026-01, 2026-02…)<br/>
+    3. Llena filas con ID, TITULO, DESCRIPCION, bloques<br/>
+    4. Guarda imágenes en <strong>img/[ID_CAMBIO]/</strong><br/>
+    5. Ejecuta: <strong>python script_procesamiento.py</strong><br/>
+    6. Recarga esta página
+  </div>
+</div>
+
+<script>
+// ─── STATE ──────────────────────────────────────────────────────────────────
+let allData = {};
+let activePeriod = null;
+let searchQuery = '';
+
+// ─── LOAD DATA ───────────────────────────────────────────────────────────────
+async function loadData() {
+  try {
+    const res = await fetch('data/data.json');
+    if (!res.ok) throw new Error('not found');
+    allData = await res.json();
+    const periods = Object.keys(allData).sort().reverse();
+    if (periods.length === 0) throw new Error('empty');
+    buildSidebar(periods);
+    activatePeriod(periods[0]);
+  } catch (e) {
+    document.getElementById('no-data-screen').classList.add('show');
+  }
+}
+
+// ─── SIDEBAR ─────────────────────────────────────────────────────────────────
+function buildSidebar(periods) {
+  const aside = document.getElementById('sidebar');
+  aside.innerHTML = '<div class="sidebar-label">Periodos</div>';
+  periods.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'period-btn';
+    btn.dataset.period = p;
+    const count = (allData[p] || []).length;
+    btn.innerHTML = `
+      <span class="dot"></span>
+      <span>${formatPeriod(p)}</span>
+      <span class="count">${count}</span>
+    `;
+    btn.addEventListener('click', () => {
+      searchQuery = '';
+      document.getElementById('search-input').value = '';
+      activatePeriod(p);
+    });
+    aside.appendChild(btn);
+  });
+}
+
+function formatPeriod(key) {
+  const [year, month] = key.split('-');
+  if (!month) return key;
+  const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const m = parseInt(month, 10) - 1;
+  return `${months[m] || month} ${year}`;
+}
+
+// ─── ACTIVATE PERIOD ─────────────────────────────────────────────────────────
+function activatePeriod(period) {
+  activePeriod = period;
+  document.querySelectorAll('.period-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.period === period);
+  });
+  document.getElementById('header-period').textContent = formatPeriod(period).toUpperCase();
+  renderContent();
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function renderContent() {
+  const main = document.getElementById('main-content');
+  let items = allData[activePeriod] || [];
+
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    items = Object.values(allData).flat().filter(item => {
+      const haystack = [
+        item.ID, item.TITULO, item.DESCRIPCION,
+        ...(item.BLOQUES || []).filter(b => b.tipo === 'texto').map(b => b.contenido)
+      ].join(' ').toLowerCase();
+      return haystack.includes(q);
+    });
+  }
+
+  main.innerHTML = '';
+
+  // Section header
+  const hdr = document.createElement('div');
+  hdr.className = 'section-header';
+  if (searchQuery) {
+    hdr.innerHTML = `
+      <div class="section-eyebrow">Resultados de búsqueda</div>
+      <h1 class="section-title"><em>"${escapeHtml(searchQuery)}"</em></h1>
+      <p class="section-meta">${items.length} novedad${items.length !== 1 ? 'es' : ''} encontrada${items.length !== 1 ? 's' : ''}</p>
+    `;
+  } else {
+    hdr.innerHTML = `
+      <div class="section-eyebrow">Novedades del Sistema</div>
+      <h1 class="section-title">Periodo <em>${formatPeriod(activePeriod)}</em></h1>
+      <p class="section-meta">${items.length} cambio${items.length !== 1 ? 's' : ''} registrado${items.length !== 1 ? 's' : ''}</p>
+    `;
+  }
+  main.appendChild(hdr);
+
+  // Search banner
+  if (searchQuery) {
+    const banner = document.createElement('div');
+    banner.id = 'search-banner';
+    banner.style.display = 'block';
+    banner.textContent = `🔍 Mostrando resultados para: "${searchQuery}" — todos los periodos`;
+    main.appendChild(banner);
+  }
+
+  if (items.length === 0) {
+    main.innerHTML += `
+      <div class="empty-state">
+        <div class="icon">🔍</div>
+        <h3>Sin resultados</h3>
+        <p>No se encontraron novedades para este criterio.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const grid = document.createElement('div');
+  grid.className = 'cards-grid';
+  items.forEach(item => grid.appendChild(buildCard(item)));
+  main.appendChild(grid);
+}
+
+// ─── CARD ────────────────────────────────────────────────────────────────────
+function buildCard(item) {
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  card.innerHTML = `
+    <div class="card-header">
+      <div class="card-id">${escapeHtml(item.ID || '—')}</div>
+      <div class="card-titles">
+        <div class="card-title">${escapeHtml(item.TITULO || 'Sin título')}</div>
+        ${item.DESCRIPCION ? `<div class="card-desc">${escapeHtml(item.DESCRIPCION)}</div>` : ''}
+      </div>
+    </div>
+  `;
+
+  const bloques = item.BLOQUES || [];
+  if (bloques.length > 0) {
+    const body = document.createElement('div');
+    body.className = 'card-body';
+    bloques.forEach(bloque => {
+      if (bloque.tipo === 'texto' && bloque.contenido) {
+        const p = document.createElement('div');
+        p.className = 'block-text';
+        p.innerHTML = `<p>${escapeHtml(bloque.contenido).replace(/\n/g, '</p><p>')}</p>`;
+        body.appendChild(p);
+      } else if (bloque.tipo === 'imagen' && bloque.src) {
+        const wrap = document.createElement('div');
+        wrap.className = 'block-image';
+        const img = document.createElement('img');
+        img.src = bloque.src;
+        img.alt = 'Imagen del cambio';
+        img.className = 'loading';
+        img.addEventListener('load', () => img.classList.remove('loading'));
+        img.addEventListener('click', () => openModal(bloque.src));
+        wrap.appendChild(img);
+        body.appendChild(wrap);
+      }
+    });
+    card.appendChild(body);
+  }
+
+  return card;
+}
+
+// ─── MODAL ───────────────────────────────────────────────────────────────────
+function openModal(src) {
+  const modal = document.getElementById('modal');
+  document.getElementById('modal-img').src = src;
+  modal.classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.getElementById('modal-img').src = '';
+}
+
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal')) closeModal();
+});
+document.getElementById('modal-close').addEventListener('click', closeModal);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ─── SEARCH ──────────────────────────────────────────────────────────────────
+let searchTimeout;
+document.getElementById('search-input').addEventListener('input', e => {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    searchQuery = e.target.value.trim();
+    if (searchQuery) {
+      renderContent();
+    } else {
+      renderContent();
+    }
+  }, 300);
+});
+
+// ─── UTILS ───────────────────────────────────────────────────────────────────
+function escapeHtml(str) {
+  if (typeof str !== 'string') str = String(str ?? '');
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+loadData();
+</script>
+</body>
+</html>
